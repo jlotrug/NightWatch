@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var nightWatchTasks: NighWatchTasks
+    @State private var focusModeOn = false
     var body: some View {
         NavigationView {
             List{
@@ -24,7 +25,11 @@ struct ContentView: View {
                         let nightWatchTasksWrapper = $nightWatchTasks
                         let tasksBinding = nightWatchTasksWrapper.nightlyTasks
                         let theTasksBinding = tasksBinding[taskIndex]
-                        NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        
+                        if !focusModeOn || (focusModeOn && !task.isComplete){
+                            NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        }
+                        
                     })
                 }.listStyle(GroupedListStyle())
                 
@@ -40,7 +45,9 @@ struct ContentView: View {
                         let nightWatchTasksWrapper = $nightWatchTasks
                         let tasksBinding = nightWatchTasksWrapper.weeklyTasks
                         let theTasksBinding = tasksBinding[taskIndex]
-                        NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        if !focusModeOn || (focusModeOn && !task.isComplete){
+                            NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        }
                     })
                 }.listStyle(GroupedListStyle())
 
@@ -54,12 +61,23 @@ struct ContentView: View {
                         let nightWatchTasksWrapper = $nightWatchTasks
                         let tasksBinding = nightWatchTasksWrapper.monthlyTasks
                         let theTasksBinding = tasksBinding[taskIndex]
-                        NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        if !focusModeOn || (focusModeOn && !task.isComplete){
+                            NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
+                        }
 
                     })
                 }.listStyle(GroupedListStyle())
             }
             .navigationTitle("Home")
+            .toolbar {
+                ToolbarItem(placement: .bottomBar){
+                    Toggle(isOn: $focusModeOn, label: {
+                        Text("Focus Mode")
+                    })
+                    .toggleStyle(.switch)
+                }
+                
+            }
         }
     }
 }

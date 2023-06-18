@@ -10,8 +10,9 @@ import SwiftUI
 @main
 struct NighWatchApp: App {
     var body: some Scene {
+        @StateObject var nightWatchTasks = NighWatchTasks()
         WindowGroup {
-            ContentView()
+            ContentView(nightWatchTasks: nightWatchTasks)
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var nightWatchTasks: NighWatchTasks
     @State private var focusModeOn = false
+    @State private var resetAlertShowing = false
     var body: some View {
         NavigationView {
             List{
@@ -30,6 +31,12 @@ struct ContentView: View {
                             NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
                         }
                         
+                    }).onDelete(perform: { indexSet in
+                        nightWatchTasks.nightlyTasks.remove(atOffsets: indexSet)
+                    })
+                    .onMove(perform: { indices, newOffset in
+                        nightWatchTasks.nightlyTasks
+                            .move(fromOffsets: indices, toOffset: newOffset)
                     })
                 }.listStyle(GroupedListStyle())
                 
@@ -48,6 +55,12 @@ struct ContentView: View {
                         if !focusModeOn || (focusModeOn && !task.isComplete){
                             NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
                         }
+                    }).onDelete(perform: { indexSet in
+                        nightWatchTasks.nightlyTasks.remove(atOffsets: indexSet)
+                    })
+                    .onMove(perform: { indices, newOffset in
+                        nightWatchTasks.nightlyTasks
+                            .move(fromOffsets: indices, toOffset: newOffset)
                     })
                 }.listStyle(GroupedListStyle())
 
@@ -65,11 +78,25 @@ struct ContentView: View {
                             NavigationLink(destination: DetailsView(task: theTasksBinding), label: {TaskRow(task: task)})
                         }
 
+                    }).onDelete(perform: { indexSet in
+                        nightWatchTasks.nightlyTasks.remove(atOffsets: indexSet)
+                    })
+                    .onMove(perform: { indices, newOffset in
+                        nightWatchTasks.nightlyTasks
+                            .move(fromOffsets: indices, toOffset: newOffset)
                     })
                 }.listStyle(GroupedListStyle())
             }
             .navigationTitle("Home")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading){
+                    EditButton()
+                }
+                ToolbarItem(placement: .navigationBarTrailing){
+                    Button("Reset"){
+                        resetAlertShowing = true
+                    }
+                }
                 ToolbarItem(placement: .bottomBar){
                     Toggle(isOn: $focusModeOn, label: {
                         Text("Focus Mode")
@@ -78,7 +105,15 @@ struct ContentView: View {
                 }
                 
             }
-        }
+        }.alert(isPresented: $resetAlertShowing, content: {
+            Alert(title: Text("Reset List"), message: Text("Are you sure?"), primaryButton: .cancel(), secondaryButton: .destructive(Text("Yes reset it"), action: {
+                
+                let refreshedNightWatchTasks = NighWatchTasks()
+                self.nightWatchTasks.nightlyTasks = refreshedNightWatchTasks.nightlyTasks
+                self.nightWatchTasks.weeklyTasks = refreshedNightWatchTasks.weeklyTasks
+                self.nightWatchTasks.monthlyTasks = refreshedNightWatchTasks.monthlyTasks
+            }))
+        })
     }
 }
 
